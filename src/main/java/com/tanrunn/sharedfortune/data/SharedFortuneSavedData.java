@@ -1,5 +1,6 @@
 package com.tanrunn.sharedfortune.data;
 
+import com.tanrunn.sharedfortune.SharedFortune;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -38,16 +39,29 @@ public final class SharedFortuneSavedData extends SavedData {
         return links.get(player);
     }
 
+    public UUID getPartner(UUID player) {
+        SoulLink link = getLink(player);
+        return link == null || !link.isValid() ? null : link.getOtherPlayer(player);
+    }
+
     public boolean hasLink(UUID player) {
         SoulLink link = getLink(player);
         return link != null && link.active();
     }
 
     public void removeLink(UUID player) {
-        SoulLink link = links.remove(player);
+        SoulLink link = getLink(player);
         if (link != null) {
+            links.remove(link.playerA());
+            links.remove(link.playerB());
             link.deactivate();
-            links.remove(link.getOtherPlayer(player));
+            setDirty();
+        }
+    }
+
+    public void cleanupInactiveLinks() {
+        boolean changed = links.values().removeIf(link -> !link.isValid());
+        if (changed) {
             setDirty();
         }
     }
@@ -56,12 +70,17 @@ public final class SharedFortuneSavedData extends SavedData {
         SharedFortuneSavedData data = new SharedFortuneSavedData();
         ListTag linksTag = tag.getList(LINKS_TAG, Tag.TAG_COMPOUND);
         for (Tag entry : linksTag) {
-            SoulLink link = SoulLink.load((CompoundTag) entry);
-            if (link.active()) {
-                data.links.put(link.playerA(), link);
-                data.links.put(link.playerB(), link);
+            try {
+                SoulLink link = SoulLink.load((CompoundTag) entry);
+                if (link.isValid()) {
+                    data.links.put(link.playerA(), link);
+                    data.links.put(link.playerB(), link);
+                }
+            } catch (IllegalArgumentException | IllegalStateException exception) {
+                SharedFortune.LOGGER.warn("跳过损坏的 Shared Fortune 生命链接数据", exception);
             }
         }
+        data.cleanupInactiveLinks();
         return data;
     }
 

@@ -14,7 +14,7 @@ public final class SoulLink {
     private final UUID playerA;
     private final UUID playerB;
     private final long createTime;
-    private final int level;
+    private int level;
     private boolean active;
 
     public SoulLink(UUID playerA, UUID playerB, long createTime, int level, boolean active) {
@@ -64,8 +64,28 @@ public final class SoulLink {
         return level;
     }
 
+    public void setLevel(int level) {
+        this.level = level;
+    }
+
+    public void increaseLevel() {
+        level++;
+    }
+
+    public void decreaseLevel() {
+        level--;
+    }
+
+    public boolean isValid() {
+        return playerA != null && playerB != null && !playerA.equals(playerB) && active;
+    }
+
     public boolean active() {
         return active;
+    }
+
+    public void activate() {
+        active = true;
     }
 
     public void deactivate() {

@@ -7,12 +7,18 @@
 - Java: 21
 - Minecraft: 1.21.1
 - NeoForge: 21.1.248
-- Version: `0.2.0`
+- Version: `0.2.1`
 - Mod ID: `sharedfortune`
 - Item ID: `shared_fortune`
 - Package: `com.tanrunn.sharedfortune`
 
 Link data is stored as `SoulLink` records in `SharedFortuneSavedData` and persisted to the server world.
+
+Operators with permission level 2 can inspect the current link with:
+
+```text
+/sharedfortune debug
+```
 
 Build the mod with:
 
