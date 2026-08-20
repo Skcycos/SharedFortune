@@ -6,6 +6,7 @@ import com.tanrunn.sharedfortune.data.LinkLevelEffect;
 import com.tanrunn.sharedfortune.data.LinkDistanceManager;
 import com.tanrunn.sharedfortune.data.SoulLink;
 import com.tanrunn.sharedfortune.data.SharedFortuneSavedData;
+import com.tanrunn.sharedfortune.effect.LinkEffectManager;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -48,6 +49,7 @@ public final class HealHandler {
         try {
             float syncedHeal = event.getAmount() * LinkLevelEffect.healMultiplier(levelValue);
             partner.heal(syncedHeal);
+            LinkEffectManager.playSharedHeal(partner);
         } finally {
             SYNCING.set(false);
         }

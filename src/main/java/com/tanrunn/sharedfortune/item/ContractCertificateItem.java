@@ -2,6 +2,7 @@ package com.tanrunn.sharedfortune.item;
 
 import com.tanrunn.sharedfortune.config.Config;
 import com.tanrunn.sharedfortune.data.SharedFortuneSavedData;
+import com.tanrunn.sharedfortune.effect.LinkEffectManager;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -41,6 +42,7 @@ public final class ContractCertificateItem extends Item {
         }
 
         int newLevel = data.getLink(owner.getUUID()).getLevel();
+        LinkEffectManager.playUpgrade(owner, partner, newLevel);
         owner.sendSystemMessage(Component.literal("生命契约已提升至等级 " + newLevel + "。"));
         partner.sendSystemMessage(Component.literal("生命契约已提升至等级 " + newLevel + "。"));
         if (!owner.getAbilities().instabuild && Config.UPGRADE_ITEM_CONSUME.get()) {

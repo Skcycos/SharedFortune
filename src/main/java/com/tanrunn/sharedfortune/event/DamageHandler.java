@@ -6,6 +6,7 @@ import com.tanrunn.sharedfortune.data.LinkLevelEffect;
 import com.tanrunn.sharedfortune.data.LinkDistanceManager;
 import com.tanrunn.sharedfortune.data.SoulLink;
 import com.tanrunn.sharedfortune.data.SharedFortuneSavedData;
+import com.tanrunn.sharedfortune.effect.LinkEffectManager;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -47,7 +48,9 @@ public final class DamageHandler {
         SYNCING.set(true);
         try {
             float syncedDamage = event.getAmount() * LinkLevelEffect.damageMultiplier(levelValue);
-            partner.hurt(event.getSource(), syncedDamage);
+            if (partner.hurt(event.getSource(), syncedDamage)) {
+                LinkEffectManager.playSharedDamage(partner);
+            }
         } finally {
             SYNCING.set(false);
         }

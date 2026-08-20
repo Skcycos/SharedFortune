@@ -8,6 +8,7 @@ import com.tanrunn.sharedfortune.config.Config;
 import com.tanrunn.sharedfortune.data.SharedFortuneSavedData;
 import com.tanrunn.sharedfortune.data.SoulLink;
 import com.tanrunn.sharedfortune.data.LinkDistanceManager;
+import com.tanrunn.sharedfortune.effect.LinkEffectManager;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.GameProfileArgument;
@@ -131,6 +132,7 @@ public final class DebugCommand {
             return 0;
         }
         data.addLink(requester, target);
+        LinkEffectManager.playCreate(requester, target);
         Component message = Component.literal("生命契约已建立。");
         requester.sendSystemMessage(message);
         target.sendSystemMessage(message);
@@ -212,6 +214,9 @@ public final class DebugCommand {
         }
         if (partner != null && partner != player) {
             partner.sendSystemMessage(message);
+        }
+        if (player != null && partner != null) {
+            LinkEffectManager.playBreak(player, partner);
         }
         return 1;
     }
