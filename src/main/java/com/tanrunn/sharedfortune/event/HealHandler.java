@@ -3,6 +3,7 @@ package com.tanrunn.sharedfortune.event;
 import com.tanrunn.sharedfortune.SharedFortune;
 import com.tanrunn.sharedfortune.config.Config;
 import com.tanrunn.sharedfortune.data.LinkLevelEffect;
+import com.tanrunn.sharedfortune.data.LinkDistanceManager;
 import com.tanrunn.sharedfortune.data.SoulLink;
 import com.tanrunn.sharedfortune.data.SharedFortuneSavedData;
 import net.minecraft.server.level.ServerLevel;
@@ -37,6 +38,9 @@ public final class HealHandler {
 
         ServerPlayer partner = level.getServer().getPlayerList().getPlayer(link.getOtherPlayer(player.getUUID()));
         if (partner == null) {
+            return;
+        }
+        if (!LinkDistanceManager.canInteract(player, partner)) {
             return;
         }
 

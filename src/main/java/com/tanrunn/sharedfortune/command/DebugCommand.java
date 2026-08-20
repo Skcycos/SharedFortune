@@ -6,6 +6,7 @@ import com.tanrunn.sharedfortune.SharedFortune;
 import com.tanrunn.sharedfortune.config.Config;
 import com.tanrunn.sharedfortune.data.SharedFortuneSavedData;
 import com.tanrunn.sharedfortune.data.SoulLink;
+import com.tanrunn.sharedfortune.data.LinkDistanceManager;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
@@ -39,7 +40,15 @@ public final class DebugCommand {
             return 1;
         }
 
+        ServerPlayer partner = player.getServer().getPlayerList().getPlayer(link.getOtherPlayer(player.getUUID()));
         source.sendSuccess(() -> Component.literal("绑定对象: " + link.getOtherPlayer(player.getUUID())), false);
+        if (partner == null) {
+            source.sendSuccess(() -> Component.literal("Partner Distance: 离线"), false);
+            source.sendSuccess(() -> Component.literal("Distance Allowed: false"), false);
+        } else {
+            source.sendSuccess(() -> Component.literal("Partner Distance: " + player.distanceTo(partner)), false);
+            source.sendSuccess(() -> Component.literal("Distance Allowed: " + LinkDistanceManager.canInteract(player, partner)), false);
+        }
         source.sendSuccess(() -> Component.literal("Link Level: " + link.getLevel()), false);
         source.sendSuccess(() -> Component.literal("Can Upgrade: " + link.canUpgrade()), false);
         source.sendSuccess(() -> Component.literal("Can Downgrade: " + link.canDowngrade()), false);
