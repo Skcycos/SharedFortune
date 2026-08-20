@@ -2,6 +2,8 @@ package com.tanrunn.sharedfortune.event;
 
 import com.tanrunn.sharedfortune.SharedFortune;
 import com.tanrunn.sharedfortune.config.Config;
+import com.tanrunn.sharedfortune.data.LinkLevelEffect;
+import com.tanrunn.sharedfortune.data.SoulLink;
 import com.tanrunn.sharedfortune.data.SharedFortuneSavedData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -24,18 +26,24 @@ public final class HealHandler {
             return;
         }
 
-        java.util.UUID partnerId = SharedFortuneSavedData.get(level).getPartner(player.getUUID());
-        if (partnerId == null) {
+        SoulLink link = SharedFortuneSavedData.get(level).getLink(player.getUUID());
+        if (link == null || !link.isValid()) {
             return;
         }
-        ServerPlayer partner = level.getServer().getPlayerList().getPlayer(partnerId);
+        int levelValue = link.getLevel();
+        if (!LinkLevelEffect.shareHeal(levelValue)) {
+            return;
+        }
+
+        ServerPlayer partner = level.getServer().getPlayerList().getPlayer(link.getOtherPlayer(player.getUUID()));
         if (partner == null) {
             return;
         }
 
         SYNCING.set(true);
         try {
-            partner.heal(event.getAmount());
+            float syncedHeal = event.getAmount() * LinkLevelEffect.healMultiplier(levelValue);
+            partner.heal(syncedHeal);
         } finally {
             SYNCING.set(false);
         }
