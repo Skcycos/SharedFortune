@@ -11,6 +11,7 @@ import com.tanrunn.sharedfortune.data.LinkDistanceManager;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.GameProfileArgument;
+import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -33,6 +34,14 @@ public final class DebugCommand {
                         .executes(context -> unlinkSelf(context.getSource())))
                 .then(Commands.literal("info")
                         .executes(context -> info(context.getSource())))
+                .then(Commands.literal("link")
+                        .then(Commands.argument("player", EntityArgument.player())
+                                .executes(context -> requestLink(
+                                        context.getSource(), EntityArgument.getPlayer(context, "player")))))
+                .then(Commands.literal("accept")
+                        .executes(context -> acceptLink(context.getSource())))
+                .then(Commands.literal("deny")
+                        .executes(context -> denyLink(context.getSource())))
                 .then(Commands.literal("admin")
                         .requires(source -> source.hasPermission(2))
                         .then(Commands.literal("unlink")
@@ -77,6 +86,71 @@ public final class DebugCommand {
     private static int unlinkSelf(CommandSourceStack source) throws CommandSyntaxException {
         ServerPlayer player = source.getPlayerOrException();
         return unlinkPlayer(source, player.getUUID(), player.getName().getString());
+    }
+
+    private static int requestLink(CommandSourceStack source, ServerPlayer target) throws CommandSyntaxException {
+        ServerPlayer requester = source.getPlayerOrException();
+        if (requester == target) {
+            source.sendFailure(Component.literal("不能和自己建立生命契约。"));
+            return 0;
+        }
+
+        SharedFortuneSavedData data = SharedFortuneSavedData.get(requester.serverLevel());
+        if (data.hasLink(requester.getUUID()) || data.hasLink(target.getUUID())) {
+            source.sendFailure(Component.literal("你或目标玩家已经存在生命契约。"));
+            return 0;
+        }
+        if (!LinkRequestManager.create(requester, target)) {
+            source.sendFailure(Component.literal("目标玩家已有待处理的生命契约请求。"));
+            return 0;
+        }
+
+        requester.sendSystemMessage(Component.literal("已向玩家 " + target.getName().getString() + " 发送生命契约请求。"));
+        target.sendSystemMessage(Component.literal("玩家 " + requester.getName().getString()
+                + " 请求与你建立生命契约。输入 /sharedfortune accept 接受，或 /sharedfortune deny 拒绝。请求 60 秒后过期。"));
+        return 1;
+    }
+
+    private static int acceptLink(CommandSourceStack source) throws CommandSyntaxException {
+        ServerPlayer target = source.getPlayerOrException();
+        java.util.UUID requesterId = LinkRequestManager.accept(target);
+        if (requesterId == null) {
+            source.sendFailure(Component.literal("没有有效的生命契约请求。"));
+            return 0;
+        }
+
+        ServerPlayer requester = target.getServer().getPlayerList().getPlayer(requesterId);
+        if (requester == null) {
+            source.sendFailure(Component.literal("请求发起者已离线，请重新发起请求。"));
+            return 0;
+        }
+
+        SharedFortuneSavedData data = SharedFortuneSavedData.get(target.serverLevel());
+        if (data.hasLink(target.getUUID()) || data.hasLink(requester.getUUID())) {
+            source.sendFailure(Component.literal("你或请求发起者已经存在生命契约。"));
+            return 0;
+        }
+        data.addLink(requester, target);
+        Component message = Component.literal("生命契约已建立。");
+        requester.sendSystemMessage(message);
+        target.sendSystemMessage(message);
+        return 1;
+    }
+
+    private static int denyLink(CommandSourceStack source) throws CommandSyntaxException {
+        ServerPlayer target = source.getPlayerOrException();
+        java.util.UUID requesterId = LinkRequestManager.deny(target);
+        if (requesterId == null) {
+            source.sendFailure(Component.literal("没有有效的生命契约请求。"));
+            return 0;
+        }
+
+        ServerPlayer requester = target.getServer().getPlayerList().getPlayer(requesterId);
+        target.sendSystemMessage(Component.literal("你已拒绝生命契约请求。"));
+        if (requester != null) {
+            requester.sendSystemMessage(Component.literal("玩家 " + target.getName().getString() + " 已拒绝生命契约请求。"));
+        }
+        return 1;
     }
 
     private static int info(CommandSourceStack source) throws CommandSyntaxException {
