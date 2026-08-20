@@ -7,7 +7,7 @@
 - Java: 21
 - Minecraft: 1.21.1
 - NeoForge: 21.1.248
-- Version: `0.5.0`
+- Version: `0.6.0`
 - Mod ID: `sharedfortune`
 - Item ID: `shared_fortune`
 - Package: `com.tanrunn.sharedfortune`
@@ -23,6 +23,8 @@ Operators with permission level 2 can inspect the current link with:
 Players can use a `contract_certificate` on their linked partner to increase the link level.
 
 Players can remove their own link with `/sharedfortune unlink`. Operators can remove another player's link with `/sharedfortune admin unlink <player>`.
+
+Players can inspect their contract with `/sharedfortune info`.
 
 Build the mod with:
 

@@ -31,6 +31,8 @@ public final class DebugCommand {
                         .executes(context -> execute(context.getSource())))
                 .then(Commands.literal("unlink")
                         .executes(context -> unlinkSelf(context.getSource())))
+                .then(Commands.literal("info")
+                        .executes(context -> info(context.getSource())))
                 .then(Commands.literal("admin")
                         .requires(source -> source.hasPermission(2))
                         .then(Commands.literal("unlink")
@@ -75,6 +77,38 @@ public final class DebugCommand {
     private static int unlinkSelf(CommandSourceStack source) throws CommandSyntaxException {
         ServerPlayer player = source.getPlayerOrException();
         return unlinkPlayer(source, player.getUUID(), player.getName().getString());
+    }
+
+    private static int info(CommandSourceStack source) throws CommandSyntaxException {
+        ServerPlayer player = source.getPlayerOrException();
+        SharedFortuneSavedData data = SharedFortuneSavedData.get(player.serverLevel());
+        SoulLink link = data.getLink(player.getUUID());
+
+        source.sendSuccess(() -> Component.literal("§6生命契约信息"), false);
+        if (link == null || !link.isValid()) {
+            source.sendSuccess(() -> Component.literal("是否存在契约: 否"), false);
+            return 1;
+        }
+
+        java.util.UUID partnerId = link.getOtherPlayer(player.getUUID());
+        ServerPlayer partner = player.getServer().getPlayerList().getPlayer(partnerId);
+        String partnerName = player.getServer().getProfileCache().get(partnerId)
+                .map(profile -> profile.getName())
+                .orElse("未知玩家");
+        int maxDistance = Config.MAX_LINK_DISTANCE.get();
+        boolean distanceAllowed = partner != null && LinkDistanceManager.canInteract(player, partner);
+
+        source.sendSuccess(() -> Component.literal("是否存在契约: 是"), false);
+        source.sendSuccess(() -> Component.literal("契约对象名称: " + partnerName), false);
+        source.sendSuccess(() -> Component.literal("契约对象 UUID: " + partnerId), false);
+        source.sendSuccess(() -> Component.literal("契约等级: " + link.getLevel()), false);
+        source.sendSuccess(() -> Component.literal("active: " + link.active()), false);
+        source.sendSuccess(() -> Component.literal("创建时间: " + link.createTime()), false);
+        source.sendSuccess(() -> Component.literal("伙伴在线: " + (partner != null)), false);
+        source.sendSuccess(() -> Component.literal("当前距离: " + (partner == null ? "不可用" : player.distanceTo(partner))), false);
+        source.sendSuccess(() -> Component.literal("最大允许距离: " + (maxDistance <= 0 ? "无限" : maxDistance)), false);
+        source.sendSuccess(() -> Component.literal("是否允许同步: " + distanceAllowed), false);
+        return 1;
     }
 
     private static int adminUnlink(CommandSourceStack source, java.util.Collection<GameProfile> profiles) {
