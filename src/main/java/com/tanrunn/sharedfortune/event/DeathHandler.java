@@ -22,11 +22,12 @@ public final class DeathHandler {
         }
 
         SharedFortuneSavedData data = SharedFortuneSavedData.get(level);
-        var partnerId = data.getPartner(player.getUUID());
-        if (partnerId.isPresent()) {
-            data.unlink(player.getUUID());
+        var link = data.getLink(player.getUUID());
+        if (link != null && link.active()) {
+            var partnerId = link.getOtherPlayer(player.getUUID());
+            data.removeLink(player.getUUID());
             player.sendSystemMessage(Component.literal("生命链接已解除。"));
-            ServerPlayer partner = level.getServer().getPlayerList().getPlayer(partnerId.get());
+            ServerPlayer partner = level.getServer().getPlayerList().getPlayer(partnerId);
             if (partner != null) {
                 partner.sendSystemMessage(Component.literal("生命链接已解除。"));
             }

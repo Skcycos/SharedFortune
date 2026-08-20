@@ -29,16 +29,16 @@ public final class SharedFortuneItem extends Item {
         }
 
         SharedFortuneSavedData data = SharedFortuneSavedData.get(serverLevel);
-        if (data.getPartner(owner.getUUID()).isPresent()) {
+        if (data.hasLink(owner.getUUID())) {
             owner.sendSystemMessage(Component.literal("你已经建立了生命链接。"));
             return InteractionResult.SUCCESS;
         }
-        if (data.getPartner(partner.getUUID()).isPresent()) {
+        if (data.hasLink(partner.getUUID())) {
             owner.sendSystemMessage(Component.literal("对方已经建立了生命链接。"));
             return InteractionResult.SUCCESS;
         }
 
-        data.link(owner.getUUID(), partner.getUUID());
+        data.addLink(owner, partner);
         owner.sendSystemMessage(Component.literal("§a你和玩家 " + partner.getGameProfile().getName() + " 建立了生命链接！"));
         partner.sendSystemMessage(Component.literal("§a你和玩家 " + owner.getGameProfile().getName() + " 建立了生命链接！"));
         return InteractionResult.SUCCESS;

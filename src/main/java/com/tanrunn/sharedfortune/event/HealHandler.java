@@ -2,15 +2,13 @@ package com.tanrunn.sharedfortune.event;
 
 import com.tanrunn.sharedfortune.SharedFortune;
 import com.tanrunn.sharedfortune.config.Config;
+import com.tanrunn.sharedfortune.data.SoulLink;
 import com.tanrunn.sharedfortune.data.SharedFortuneSavedData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.living.LivingHealEvent;
-
-import java.util.Optional;
-import java.util.UUID;
 
 @EventBusSubscriber(modid = SharedFortune.MOD_ID)
 public final class HealHandler {
@@ -27,11 +25,11 @@ public final class HealHandler {
             return;
         }
 
-        Optional<UUID> partnerId = SharedFortuneSavedData.get(level).getPartner(player.getUUID());
-        if (partnerId.isEmpty()) {
+        SoulLink link = SharedFortuneSavedData.get(level).getLink(player.getUUID());
+        if (link == null || !link.active()) {
             return;
         }
-        ServerPlayer partner = level.getServer().getPlayerList().getPlayer(partnerId.get());
+        ServerPlayer partner = level.getServer().getPlayerList().getPlayer(link.getOtherPlayer(player.getUUID()));
         if (partner == null) {
             return;
         }

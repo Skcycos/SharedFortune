@@ -3,23 +3,20 @@ package com.tanrunn.sharedfortune.data;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.saveddata.SavedData;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 
 public final class SharedFortuneSavedData extends SavedData {
     private static final String DATA_NAME = "shared_fortune";
-    private static final String LINKS_TAG = "Links";
-    private static final String FIRST_TAG = "First";
-    private static final String SECOND_TAG = "Second";
+    private static final String LINKS_TAG = "links";
 
-    private final Map<UUID, UUID> links = new HashMap<>();
+    private final Map<UUID, SoulLink> links = new HashMap<>();
 
     public static SharedFortuneSavedData get(ServerLevel level) {
         ServerLevel overworld = level.getServer().getLevel(ServerLevel.OVERWORLD);
@@ -30,33 +27,40 @@ public final class SharedFortuneSavedData extends SavedData {
                 new Factory<>(SharedFortuneSavedData::new, SharedFortuneSavedData::load, null), DATA_NAME);
     }
 
-    public Optional<UUID> getPartner(UUID player) {
-        return Optional.ofNullable(links.get(player));
-    }
-
-    public void link(UUID first, UUID second) {
-        links.put(first, second);
-        links.put(second, first);
+    public void addLink(ServerPlayer playerA, ServerPlayer playerB) {
+        SoulLink link = SoulLink.create(playerA.getUUID(), playerB.getUUID());
+        links.put(link.playerA(), link);
+        links.put(link.playerB(), link);
         setDirty();
     }
 
-    public void unlink(UUID player) {
-        UUID partner = links.remove(player);
-        if (partner != null && player.equals(links.get(partner))) {
-            links.remove(partner);
+    public SoulLink getLink(UUID player) {
+        return links.get(player);
+    }
+
+    public boolean hasLink(UUID player) {
+        SoulLink link = getLink(player);
+        return link != null && link.active();
+    }
+
+    public void removeLink(UUID player) {
+        SoulLink link = links.remove(player);
+        if (link != null) {
+            link.deactivate();
+            links.remove(link.getOtherPlayer(player));
+            setDirty();
         }
-        setDirty();
     }
 
     public static SharedFortuneSavedData load(CompoundTag tag, HolderLookup.Provider provider) {
         SharedFortuneSavedData data = new SharedFortuneSavedData();
         ListTag linksTag = tag.getList(LINKS_TAG, Tag.TAG_COMPOUND);
         for (Tag entry : linksTag) {
-            CompoundTag link = (CompoundTag) entry;
-            UUID first = NbtUtils.loadUUID(link.get(FIRST_TAG));
-            UUID second = NbtUtils.loadUUID(link.get(SECOND_TAG));
-            data.links.put(first, second);
-            data.links.put(second, first);
+            SoulLink link = SoulLink.load((CompoundTag) entry);
+            if (link.active()) {
+                data.links.put(link.playerA(), link);
+                data.links.put(link.playerB(), link);
+            }
         }
         return data;
     }
@@ -64,12 +68,9 @@ public final class SharedFortuneSavedData extends SavedData {
     @Override
     public CompoundTag save(CompoundTag tag, HolderLookup.Provider provider) {
         ListTag linksTag = new ListTag();
-        for (Map.Entry<UUID, UUID> entry : links.entrySet()) {
-            if (entry.getKey().compareTo(entry.getValue()) < 0) {
-                CompoundTag link = new CompoundTag();
-                link.put(FIRST_TAG, NbtUtils.createUUID(entry.getKey()));
-                link.put(SECOND_TAG, NbtUtils.createUUID(entry.getValue()));
-                linksTag.add(link);
+        for (SoulLink link : links.values()) {
+            if (link.active() && link.playerA().compareTo(link.playerB()) < 0) {
+                linksTag.add(link.save());
             }
         }
         tag.put(LINKS_TAG, linksTag);
