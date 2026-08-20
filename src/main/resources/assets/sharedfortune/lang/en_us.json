@@ -1,10 +1,12 @@
 {
   "item.sharedfortune.shared_fortune": "有福同享",
+  "item.sharedfortune.contract_certificate": "契约之证",
   "sharedfortune.configuration.title": "Shared Fortune Config",
   "sharedfortune.configuration.section.sharedfortune.common.toml": "Shared Fortune Config",
   "sharedfortune.configuration.section.sharedfortune.common.toml.title": "Shared Fortune Config",
   "sharedfortune.configuration.enableSharedDamage": "Enable Shared Damage",
   "sharedfortune.configuration.enableSharedHeal": "Enable Shared Heal",
   "sharedfortune.configuration.maxLinkDistance": "Maximum Link Distance",
-  "sharedfortune.configuration.maxLinkLevel": "Maximum Link Level"
+  "sharedfortune.configuration.maxLinkLevel": "Maximum Link Level",
+  "sharedfortune.configuration.upgradeItemConsume": "Consume Contract Certificate on Upgrade"
 }

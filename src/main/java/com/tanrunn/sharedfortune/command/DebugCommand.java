@@ -3,6 +3,7 @@ package com.tanrunn.sharedfortune.command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.tanrunn.sharedfortune.SharedFortune;
+import com.tanrunn.sharedfortune.config.Config;
 import com.tanrunn.sharedfortune.data.SharedFortuneSavedData;
 import com.tanrunn.sharedfortune.data.SoulLink;
 import net.minecraft.commands.CommandSourceStack;
@@ -42,6 +43,8 @@ public final class DebugCommand {
         source.sendSuccess(() -> Component.literal("Link Level: " + link.getLevel()), false);
         source.sendSuccess(() -> Component.literal("Can Upgrade: " + link.canUpgrade()), false);
         source.sendSuccess(() -> Component.literal("Can Downgrade: " + link.canDowngrade()), false);
+        source.sendSuccess(() -> Component.literal("Upgrade Available: " + link.canUpgrade()), false);
+        source.sendSuccess(() -> Component.literal("Upgrade Item Required: " + Config.UPGRADE_ITEM_CONSUME.get()), false);
         source.sendSuccess(() -> Component.literal("Link: active=" + link.active()
                 + ", createTime=" + link.createTime()), false);
         return 1;

@@ -7,7 +7,7 @@
 - Java: 21
 - Minecraft: 1.21.1
 - NeoForge: 21.1.248
-- Version: `0.3.0`
+- Version: `0.3.1`
 - Mod ID: `sharedfortune`
 - Item ID: `shared_fortune`
 - Package: `com.tanrunn.sharedfortune`
@@ -19,6 +19,8 @@ Operators with permission level 2 can inspect the current link with:
 ```text
 /sharedfortune debug
 ```
+
+Players can use a `contract_certificate` on their linked partner to increase the link level.
 
 Build the mod with:
 

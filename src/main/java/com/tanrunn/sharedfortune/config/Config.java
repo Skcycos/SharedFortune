@@ -22,6 +22,10 @@ public final class Config {
             .comment("Maximum level available to a soul link.")
             .defineInRange("maxLinkLevel", SoulLink.MAX_LEVEL, SoulLink.MIN_LEVEL, SoulLink.MAX_LEVEL);
 
+    public static final ModConfigSpec.BooleanValue UPGRADE_ITEM_CONSUME = BUILDER
+            .comment("Whether upgrading a link consumes a Contract Certificate.")
+            .define("upgradeItemConsume", true);
+
     public static final ModConfigSpec SPEC = BUILDER.build();
 
     private Config() {

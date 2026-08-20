@@ -11,6 +11,9 @@ public final class ModItems {
     public static final DeferredItem<Item> SHARED_FORTUNE = ITEMS.registerItem(
             "shared_fortune", SharedFortuneItem::new, new Item.Properties());
 
+    public static final DeferredItem<Item> CONTRACT_CERTIFICATE = ITEMS.registerItem(
+            "contract_certificate", ContractCertificateItem::new, new Item.Properties());
+
     private ModItems() {
     }
 }
