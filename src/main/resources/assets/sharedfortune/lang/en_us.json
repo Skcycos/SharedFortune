@@ -5,5 +5,6 @@
   "sharedfortune.configuration.section.sharedfortune.common.toml.title": "Shared Fortune Config",
   "sharedfortune.configuration.enableSharedDamage": "Enable Shared Damage",
   "sharedfortune.configuration.enableSharedHeal": "Enable Shared Heal",
-  "sharedfortune.configuration.maxLinkDistance": "Maximum Link Distance"
+  "sharedfortune.configuration.maxLinkDistance": "Maximum Link Distance",
+  "sharedfortune.configuration.maxLinkLevel": "Maximum Link Level"
 }

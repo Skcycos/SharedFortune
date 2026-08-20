@@ -39,8 +39,11 @@ public final class DebugCommand {
         }
 
         source.sendSuccess(() -> Component.literal("绑定对象: " + link.getOtherPlayer(player.getUUID())), false);
-        source.sendSuccess(() -> Component.literal("Link: level=" + link.level()
-                + ", active=" + link.active() + ", createTime=" + link.createTime()), false);
+        source.sendSuccess(() -> Component.literal("Link Level: " + link.getLevel()), false);
+        source.sendSuccess(() -> Component.literal("Can Upgrade: " + link.canUpgrade()), false);
+        source.sendSuccess(() -> Component.literal("Can Downgrade: " + link.canDowngrade()), false);
+        source.sendSuccess(() -> Component.literal("Link: active=" + link.active()
+                + ", createTime=" + link.createTime()), false);
         return 1;
     }
 }

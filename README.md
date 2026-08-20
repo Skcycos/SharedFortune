@@ -7,7 +7,7 @@
 - Java: 21
 - Minecraft: 1.21.1
 - NeoForge: 21.1.248
-- Version: `0.2.1`
+- Version: `0.3.0`
 - Mod ID: `sharedfortune`
 - Item ID: `shared_fortune`
 - Package: `com.tanrunn.sharedfortune`

@@ -1,5 +1,6 @@
 package com.tanrunn.sharedfortune.config;
 
+import com.tanrunn.sharedfortune.data.SoulLink;
 import net.neoforged.neoforge.common.ModConfigSpec;
 
 public final class Config {
@@ -16,6 +17,10 @@ public final class Config {
     public static final ModConfigSpec.IntValue MAX_LINK_DISTANCE = BUILDER
             .comment("Maximum distance between linked players. 0 means unlimited.")
             .defineInRange("maxLinkDistance", 0, 0, Integer.MAX_VALUE);
+
+    public static final ModConfigSpec.IntValue MAX_LINK_LEVEL = BUILDER
+            .comment("Maximum level available to a soul link.")
+            .defineInRange("maxLinkLevel", SoulLink.MAX_LEVEL, SoulLink.MIN_LEVEL, SoulLink.MAX_LEVEL);
 
     public static final ModConfigSpec SPEC = BUILDER.build();
 

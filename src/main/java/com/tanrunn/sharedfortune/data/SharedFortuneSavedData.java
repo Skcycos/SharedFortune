@@ -49,6 +49,26 @@ public final class SharedFortuneSavedData extends SavedData {
         return link != null && link.active();
     }
 
+    public boolean upgradeLink(UUID player) {
+        SoulLink link = getLink(player);
+        if (link == null || !link.canUpgrade()) {
+            return false;
+        }
+        link.increaseLevel();
+        setDirty();
+        return true;
+    }
+
+    public boolean downgradeLink(UUID player) {
+        SoulLink link = getLink(player);
+        if (link == null || !link.canDowngrade()) {
+            return false;
+        }
+        link.decreaseLevel();
+        setDirty();
+        return true;
+    }
+
     public void removeLink(UUID player) {
         SoulLink link = getLink(player);
         if (link != null) {

@@ -5,6 +5,9 @@ import net.minecraft.nbt.CompoundTag;
 import java.util.UUID;
 
 public final class SoulLink {
+    public static final int MIN_LEVEL = 1;
+    public static final int MAX_LEVEL = 5;
+
     private static final String PLAYER_A_TAG = "playerA";
     private static final String PLAYER_B_TAG = "playerB";
     private static final String CREATE_TIME_TAG = "createTime";
@@ -21,7 +24,7 @@ public final class SoulLink {
         this.playerA = playerA;
         this.playerB = playerB;
         this.createTime = createTime;
-        this.level = level;
+        this.level = Math.clamp(level, MIN_LEVEL, MAX_LEVEL);
         this.active = active;
     }
 
@@ -64,16 +67,33 @@ public final class SoulLink {
         return level;
     }
 
-    public void setLevel(int level) {
-        this.level = level;
+    public boolean setLevel(int level) {
+        int clampedLevel = Math.clamp(level, MIN_LEVEL, MAX_LEVEL);
+        if (this.level == clampedLevel) {
+            return false;
+        }
+        this.level = clampedLevel;
+        return true;
+    }
+
+    public int getLevel() {
+        return level;
     }
 
     public void increaseLevel() {
-        level++;
+        setLevel(level + 1);
     }
 
     public void decreaseLevel() {
-        level--;
+        setLevel(level - 1);
+    }
+
+    public boolean canUpgrade() {
+        return level < MAX_LEVEL;
+    }
+
+    public boolean canDowngrade() {
+        return level > MIN_LEVEL;
     }
 
     public boolean isValid() {
